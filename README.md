@@ -20,11 +20,11 @@ fn main() -> Result<(), ljm::Error> {
 
   handle.write_name(CString::new("TEST_FLOAT32").unwrap(), 3.14)?;
 
-  let float_value = handle.read_name(CString::new("TEST_FLOAT32").unwrap())?;
+  let value = handle.read_name(CString::new("TEST_FLOAT32").unwrap())?;
 
   handle.close()
 }
 ```
 
 ## Alternative Crates
-- [ljmrs](https://crates.io/crates/ljmrs) offers an API through libloading that more closely mirrors the C library. The goal of this crate is to be somewhat more idiomatic and ergonomic, such as provided a [Handle](crate::Handle) type that uses RAII for device handles.
+- [ljmrs](https://crates.io/crates/ljmrs) offers an API through libloading that more closely mirrors the C library. The goal of this crate is to be somewhat more idiomatic and ergonomic, such as providing a [Handle](crate::Handle) type that uses RAII for device handles.

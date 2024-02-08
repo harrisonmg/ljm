@@ -1,0 +1,17 @@
+[package]
+name = "ljm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Idiomatic Rust wrapper for the LabJack LJM library."
+homepage = "https://github.com/harrisonmg/ljm"
+repository = "https://github.com/harrisonmg/ljm"
+readme = "README.md"
+
+[workspace]
+
+[dependencies]
+ljm-sys = { path = "ljm-sys" }
+
+[dev-dependencies]
+anyhow = "1.0.75"

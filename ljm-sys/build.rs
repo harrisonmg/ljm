@@ -2,12 +2,17 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    println!("cargo:rustc-link-search=/usr/local/lib");
-    println!("cargo:rustc-link-lib=LabJackM");
     println!("cargo:rerun-if-changed=wrapper.h");
+    println!("cargo:rustc-link-lib=LabJackM");
+
+    let header = if std::env::var("DOCS_RS").is_ok() {
+        "docs/wrapper.h"
+    } else {
+        "wrapper.h"
+    };
 
     let bindings = bindgen::Builder::default()
-        .header("wrapper.h")
+        .header(header)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate()
         .expect("Unable to generate bindings");

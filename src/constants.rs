@@ -3,7 +3,7 @@ use std::os::raw::c_int;
 /// A LabJack device type.
 ///
 /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/open/#header-three-fksj0).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeviceType {
     Any,
     T4,
@@ -13,6 +13,7 @@ pub enum DeviceType {
 }
 
 impl From<DeviceType> for c_int {
+    #[cfg(not(tarpaulin_include))]
     fn from(value: DeviceType) -> Self {
         (match value {
             DeviceType::Any => ffi::LJM_dtANY,
@@ -25,7 +26,7 @@ impl From<DeviceType> for c_int {
 }
 
 /// A LabJack device connection type.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConnectionType {
     Any,
     AnyTcp,
@@ -45,6 +46,7 @@ pub enum ConnectionType {
 }
 
 impl From<ConnectionType> for c_int {
+    #[cfg(not(tarpaulin_include))]
     fn from(value: ConnectionType) -> Self {
         (match value {
             ConnectionType::Any => ffi::LJM_ctANY,

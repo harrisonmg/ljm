@@ -18,9 +18,11 @@ fn main() -> Result<(), ljm::Error> {
     ljm::Identifier::DemoMode
   )?;
 
-  handle.write_name(CString::new("TEST_FLOAT32").unwrap(), 3.14)?;
+  let name = CString::new("TEST_FLOAT32").unwrap();
 
-  let value = handle.read_name(CString::new("TEST_FLOAT32").unwrap())?;
+  handle.write_name(&name, 3.14)?;
+
+  let value = handle.read_name(&name)?;
 
   handle.close()
 }

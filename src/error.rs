@@ -3,7 +3,7 @@ use std::os::raw::c_int;
 /// An LJM error.
 ///
 /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/error-codes/).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
     AttrLoadCommFailure,
     AutoIpsFileInvalid,
@@ -116,6 +116,7 @@ pub enum Error {
 }
 
 impl From<c_int> for Error {
+    #[cfg(not(tarpaulin_include))]
     fn from(value: c_int) -> Self {
         use Error::*;
         match value {
@@ -236,6 +237,7 @@ impl From<c_int> for Error {
 }
 
 impl std::fmt::Display for Error {
+    #[cfg(not(tarpaulin_include))]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:#?}", self)
     }

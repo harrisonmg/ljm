@@ -29,4 +29,4 @@ fn main() -> Result<(), ljm::Error> {
 ```
 
 ## Alternative Crates
-- [ljmrs](https://crates.io/crates/ljmrs) offers an API through libloading that more closely mirrors the C library. The goal of this crate is to be somewhat more idiomatic and ergonomic, such as providing a [Handle](crate::Handle) type that uses RAII for device handles.
+- [ljmrs](https://crates.io/crates/ljmrs) offers an API through libloading that more closely mirrors the C library. The goal of this crate is to be somewhat more idiomatic and ergonomic, such as providing a [Handle](crate::Handle) type that attempts to use RAII for device handles.

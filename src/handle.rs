@@ -18,6 +18,12 @@ impl Handle {
     /// Opens a desired LabJack and associates a device handle number (connection ID).
     ///
     /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=%2Fsoftware-driver%2Fljm-users-guide%2Fopen%2F).
+    ///
+    /// If you attempt to open the same device multiple times, LJM will return the same handle.
+    /// This means that you can have multiple duplicate [Handle]s, and could close one while the
+    /// others are still in scope, resulting in errors when making calls to the LJM library. For
+    /// now, it is the responsibility of the caller to ensure that duplicate [Handle]s are avoided
+    /// or handled appropriately.
     pub fn open(
         device_type: DeviceType,
         connection_type: ConnectionType,

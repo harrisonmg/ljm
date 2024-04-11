@@ -2,7 +2,7 @@ use std::ffi::{c_char, CString, NulError};
 
 /// Some ID that may identify a LabJack device to be connected.
 ///
-/// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=%2Fsoftware-driver%2Fljm-users-guide%2Fidentifier-parameter%2F).
+/// See it in the [LJM User Guide](https://support.labjack.com/docs/identifier-parameter-ljm-user-s-guide).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Identifier {
     DemoMode,

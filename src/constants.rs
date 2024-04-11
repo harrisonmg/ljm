@@ -2,7 +2,7 @@ use std::os::raw::c_int;
 
 /// A LabJack device type.
 ///
-/// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/open/#header-three-fksj0).
+/// See it in the [LJM User Guide](https://support.labjack.com/docs/open-ljm-user-s-guide#header-three-fksj0).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeviceType {
     Any,

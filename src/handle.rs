@@ -17,7 +17,7 @@ pub struct Handle(pub(crate) c_int);
 impl Handle {
     /// Opens a desired LabJack and associates a device handle number (connection ID).
     ///
-    /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=%2Fsoftware-driver%2Fljm-users-guide%2Fopen%2F).
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/open-ljm-user-s-guide).
     ///
     /// If you attempt to open the same device multiple times, LJM will return the same handle.
     /// This means that you can have multiple duplicate [Handle]s, and could close one while the
@@ -51,14 +51,14 @@ impl Handle {
     /// Closing a handle will remove the associated device connection from the LJM library, free
     /// the device to be opened again, and free allocated system resources.
     ///
-    /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=%2Fsoftware-driver%2Fljm-users-guide%2Fclose%2F).
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/close-ljm-user-s-guide).
     pub fn close(self) -> Result<(), Error> {
         self.raw_close()
     }
 
     /// Write one value, specified by name.
     ///
-    /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/ewritename/).
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ewritename-ljm-user-s-guide).
     pub fn write_name(&self, name: &CString, value: f64) -> Result<(), Error> {
         unsafe {
             let ret = ffi::LJM_eWriteName(self.into(), name.as_ptr(), value);
@@ -68,7 +68,7 @@ impl Handle {
 
     /// Read one device register value, specified by name.
     ///
-    /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/ereadname/).
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ereadname-ljm-user-s-guide).
     pub fn read_name(&self, name: &CString) -> Result<f64, Error> {
         let mut value: f64 = 0.0;
         unsafe {
@@ -79,7 +79,7 @@ impl Handle {
 
     /// Write to a device register that expects a string value, specified by name.
     ///
-    /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/ewritenamestring/).
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ewritenamestring-ljm-user-s-guide).
     pub fn write_name_string(&self, name: &CString, str: &LjmString) -> Result<(), Error> {
         unsafe {
             let ret = ffi::LJM_eWriteNameString(self.into(), name.as_ptr(), str.as_ptr());
@@ -89,7 +89,7 @@ impl Handle {
 
     /// Read a device register that returns a string, specified by name.
     ///
-    /// See it in the [LJM User Guide](https://labjack.com/pages/support?doc=/software-driver/ljm-users-guide/ereadnamestring/).
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ereadnamestring).
     pub fn read_name_string(&self, name: &CString) -> Result<CString, Error> {
         let mut buf = [0; ljm_sys::LJM_STRING_ALLOCATION_SIZE as usize];
         unsafe {

@@ -1,4 +1,7 @@
-use std::ffi::{c_char, CString, NulError};
+use std::{
+    ffi::{c_char, CString, NulError},
+    os::raw::c_int,
+};
 
 /// Some ID that may identify a LabJack device to be connected.
 ///
@@ -17,6 +20,7 @@ impl Identifier {
 }
 
 impl From<Identifier> for CString {
+    #[cfg(not(tarpaulin_include))]
     fn from(value: Identifier) -> Self {
         match value {
             Identifier::DemoMode => CString::new("-2").unwrap(),
@@ -65,6 +69,52 @@ impl From<LjmString> for CString {
     fn from(value: LjmString) -> Self {
         value.0
     }
+}
+
+/// An LJM data type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DataType {
+    Uint16,
+    Uint32,
+    Int32,
+    Float32,
+    String,
+}
+
+impl From<DataType> for c_int {
+    #[cfg(not(tarpaulin_include))]
+    fn from(value: DataType) -> Self {
+        match value {
+            DataType::Uint16 => ffi::LJM_UINT16,
+            DataType::Uint32 => ffi::LJM_UINT32,
+            DataType::Int32 => ffi::LJM_INT32,
+            DataType::Float32 => ffi::LJM_FLOAT32,
+            DataType::String => ffi::LJM_STRING,
+        }
+    }
+}
+
+impl TryFrom<c_int> for DataType {
+    type Error = &'static str;
+
+    #[cfg(not(tarpaulin_include))]
+    fn try_from(value: c_int) -> Result<Self, Self::Error> {
+        Ok(match value {
+            ffi::LJM_UINT16 => Self::Uint16,
+            ffi::LJM_UINT32 => Self::Uint32,
+            ffi::LJM_INT32 => Self::Int32,
+            ffi::LJM_FLOAT32 => Self::Float32,
+            ffi::LJM_STRING => Self::String,
+            _ => return Err("Invalid LJM data type"),
+        })
+    }
+}
+
+/// A Modbus register specified by address and data type.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Register {
+    pub(crate) address: c_int,
+    pub data_type: DataType,
 }
 
 #[cfg(test)]

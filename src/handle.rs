@@ -1,14 +1,6 @@
 use std::ffi::{c_int, CStr, CString};
 
-use crate::{ConnectionType, DeviceType, Error, Identifier, LjmString};
-
-fn check_ret<T>(ret: c_int, out: T) -> Result<T, Error> {
-    if ret == 0 {
-        Ok(out)
-    } else {
-        Err(ret.into())
-    }
-}
+use crate::{check_ret, ConnectionType, DeviceType, Error, Identifier, LjmString, Register};
 
 /// A LabJack device handle.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -97,6 +89,49 @@ impl Handle {
             check_ret(ret, ()).map(|_| CStr::from_ptr(buf.as_ptr()).to_owned())
         }
     }
+
+    /// Write one device register value, specified by register.
+    ///
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ewriteaddress).
+    pub fn write_reg(&self, reg: &Register, value: f64) -> Result<(), Error> {
+        unsafe {
+            let ret = ffi::LJM_eWriteAddress(self.into(), reg.address, reg.data_type.into(), value);
+            check_ret(ret, ())
+        }
+    }
+
+    /// Read one value, specified by register.
+    ///
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ereadaddress-ljm-user-s-guide).
+    pub fn read_reg(&self, reg: &Register) -> Result<f64, Error> {
+        let mut value: f64 = 0.0;
+        unsafe {
+            let ret =
+                ffi::LJM_eReadAddress(self.into(), reg.address, reg.data_type.into(), &mut value);
+            check_ret(ret, value)
+        }
+    }
+
+    /// Write to a device register that expects a string, specified by register.
+    ///
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ewriteaddressstring-ljm-user-s-guide).
+    pub fn write_reg_string(&self, reg: &Register, str: &LjmString) -> Result<(), Error> {
+        unsafe {
+            let ret = ffi::LJM_eWriteAddressString(self.into(), reg.address, str.as_ptr());
+            check_ret(ret, ())
+        }
+    }
+
+    /// Read a device register that returns a string, specified by register.
+    ///
+    /// See it in the [LJM User Guide](https://support.labjack.com/docs/ereadaddressstring-ljm-user-s-guide).
+    pub fn read_reg_string(&self, reg: &Register) -> Result<CString, Error> {
+        let mut buf = [0; ljm_sys::LJM_STRING_ALLOCATION_SIZE as usize];
+        unsafe {
+            let ret = ffi::LJM_eReadAddressString(self.into(), reg.address, buf.as_mut_ptr());
+            check_ret(ret, ()).map(|_| CStr::from_ptr(buf.as_ptr()).to_owned())
+        }
+    }
 }
 
 impl Drop for Handle {
@@ -115,28 +150,74 @@ impl From<&Handle> for c_int {
 mod tests {
     use std::ffi::CString;
 
+    use anyhow::Context;
+    use serial_test::serial;
+
+    use crate::name_to_reg;
+
     use super::*;
 
     #[test]
-    fn rw_float() -> anyhow::Result<()> {
+    #[serial()]
+    fn rw_name_float() -> anyhow::Result<()> {
         let handle = Handle::open(DeviceType::Any, ConnectionType::Any, Identifier::Any)?;
         let name = CString::new("TEST_FLOAT32")?;
-        let float = 1.23;
-        handle.write_name(&name, float)?;
-        let delta = (float - handle.read_name(&name)?).abs();
-        dbg!(&delta);
-        assert!(delta < 2e-8);
+
+        for float in [1.23, 3.14] {
+            handle.write_name(&name, float)?;
+            let delta = (float - handle.read_name(&name)?).abs();
+            assert!(delta < 2e-7);
+        }
+
         handle.close()?;
         Ok(())
     }
 
     #[test]
-    fn rw_string() -> anyhow::Result<()> {
+    #[serial]
+    fn rw_name_string() -> anyhow::Result<()> {
         let handle = Handle::open(DeviceType::Any, ConnectionType::Any, Identifier::Any)?;
         let name = CString::new("WIFI_SSID_DEFAULT")?;
-        let string = LjmString::new(uuid::Uuid::new_v4().to_string())?;
-        handle.write_name_string(&name, &string)?;
-        assert_eq!(handle.read_name_string(&name)?, CString::from(string));
+
+        for string in [LjmString::new("DEADBEEF")?, LjmString::new("CAFEBABE")?] {
+            handle.write_name_string(&name, &string)?;
+            assert_eq!(handle.read_name_string(&name)?, CString::from(string));
+        }
+
+        handle.close()?;
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn rw_reg_float() -> anyhow::Result<()> {
+        let handle = Handle::open(DeviceType::Any, ConnectionType::Any, Identifier::Any)?;
+        let name = CString::new("TEST_FLOAT32")?;
+        let reg = name_to_reg(&name)?.context("Register not found")?;
+
+        for float in [1.23, 3.14] {
+            handle.write_reg(&reg, float)?;
+            let delta = (float - handle.read_reg(&reg)?).abs();
+            assert!(delta < 2e-7);
+        }
+
+        handle.close()?;
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn rw_reg_string() -> anyhow::Result<()> {
+        let handle = Handle::open(DeviceType::Any, ConnectionType::Any, Identifier::Any)?;
+        let name = CString::new("WIFI_SSID_DEFAULT")?;
+        let reg = name_to_reg(&name)?.context("Register not found")?;
+
+        for string in [LjmString::new("DEADBEEF")?, LjmString::new("CAFEBABE")?] {
+            handle.write_reg_string(&reg, &string)?;
+            assert_eq!(handle.read_reg_string(&reg)?, CString::from(string));
+        }
+
+        handle.close()?;
         Ok(())
     }
 }

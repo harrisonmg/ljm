@@ -16,3 +16,6 @@ ljm-sys = { version = "0.1.1", path = "ljm-sys" }
 [dev-dependencies]
 anyhow = "1.0.75"
 serial_test = "3.0.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tarpaulin_include)'] }

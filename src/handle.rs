@@ -163,7 +163,7 @@ mod tests {
         let handle = Handle::open(DeviceType::Any, ConnectionType::Any, Identifier::Any)?;
         let name = CString::new("TEST_FLOAT32")?;
 
-        for float in [1.23, 3.14] {
+        for float in [1.23, 3.42] {
             handle.write_name(&name, float)?;
             let delta = (float - handle.read_name(&name)?).abs();
             assert!(delta < 2e-7);
@@ -195,7 +195,7 @@ mod tests {
         let name = CString::new("TEST_FLOAT32")?;
         let reg = name_to_reg(&name)?.context("Register not found")?;
 
-        for float in [1.23, 3.14] {
+        for float in [1.23, 3.42] {
             handle.write_reg(&reg, float)?;
             let delta = (float - handle.read_reg(&reg)?).abs();
             assert!(delta < 2e-7);
